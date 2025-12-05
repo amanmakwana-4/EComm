@@ -1,0 +1,7 @@
+# robots.txt
+# Allow all crawlers; point them to your sitemap
+# Replace the Sitemap URL with your deployed site URL
+User-agent: *
+Allow: /
+
+Sitemap: https://yourdomain.com/sitemap.xml
