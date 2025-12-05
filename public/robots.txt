@@ -1,7 +1,15 @@
-# robots.txt
+# Royal Pure Spices - Robots.txt
 # Allow all crawlers; point them to your sitemap
-# Replace the Sitemap URL with your deployed site URL
 User-agent: *
 Allow: /
 
-Sitemap: https://yourdomain.com/sitemap.xml
+# Disallow admin and auth pages from indexing
+Disallow: /admin
+Disallow: /admin/
+Disallow: /auth
+
+# Sitemap location (update with your actual domain)
+Sitemap: https://royalpurespices.com/sitemap.xml
+
+# Crawl delay for politeness
+Crawl-delay: 1

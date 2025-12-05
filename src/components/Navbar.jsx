@@ -1,23 +1,37 @@
+import { memo, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, User, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
 import { toast } from "sonner";
 
-const Navbar = () => {
+const Navbar = memo(function Navbar() {
   const { items } = useCart();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  
+  // Memoize item count calculation
+  const itemCount = useMemo(
+    () => items.reduce((sum, item) => sum + item.quantity, 0),
+    [items]
+  );
 
-  const handleSignOut = async () => {
+  // Memoize callbacks to prevent unnecessary re-renders
+  const handleSignOut = useCallback(async () => {
     await signOut();
     toast.success("Logged out successfully");
     navigate("/");
-  };
+  }, [signOut, navigate]);
+
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
+  }, []);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
 
   return (
     <nav className="z-50 border-b bg-background">
@@ -28,6 +42,9 @@ const Navbar = () => {
               src="/homePageLogo.png"
               alt="Royal Pure Spices"
               className="h-14 w-auto object-contain md:h-16"
+              width={64}
+              height={64}
+              loading="eager"
             />
             <span className="hidden md:inline-block text-2xl font-bold">
               Royal <span className="text-[hsl(var(--royal-gold))]">Pure</span> Spices
@@ -99,7 +116,8 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={toggleMobileMenu}
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
@@ -111,28 +129,28 @@ const Navbar = () => {
             <Link
               to="/"
               className="block px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
             >
               Home
             </Link>
             <Link
               to="/product"
               className="block px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
             >
               Product
             </Link>
             <Link
               to="/about"
               className="block px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
             >
               About
             </Link>
             <Link
               to="/contact"
               className="block px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
             >
               Contact
             </Link>
@@ -141,14 +159,14 @@ const Navbar = () => {
                 <Link
                   to="/my-orders"
                   className="block px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   My Orders
                 </Link>
                 <button
                   onClick={() => {
                     handleSignOut();
-                    setMobileMenuOpen(false);
+                    closeMobileMenu();
                   }}
                   className="block w-full text-left px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
                 >
@@ -159,7 +177,7 @@ const Navbar = () => {
               <Link
                 to="/auth"
                 className="block px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
               >
                 Login
               </Link>
@@ -169,6 +187,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+});
 
 export default Navbar;

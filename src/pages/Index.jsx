@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, ShoppingCart, Shield, Truck } from "lucide-react";
@@ -53,11 +53,16 @@ const Index = () => {
     },
   });
 
-  const sizes = variants && variants.length > 0
-    ? variants.map((v) => ({ label: v.size, price: Number(v.price) }))
-    : fallbackSizes;
+  // Memoize sizes to prevent recalculation
+  const sizes = useMemo(() => 
+    variants && variants.length > 0
+      ? variants.map((v) => ({ label: v.size, price: Number(v.price) }))
+      : fallbackSizes,
+    [variants]
+  );
 
-  const handleAddToCart = () => {
+  // Memoize add to cart handler
+  const handleAddToCart = useCallback(() => {
     if (product) {
       const selected = sizes[selectedSizeIndex];
       addItem({
@@ -69,7 +74,7 @@ const Index = () => {
         deliveryCharge,
       });
     }
-  };
+  }, [product, sizes, selectedSizeIndex, addItem]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -82,6 +87,9 @@ const Index = () => {
             src={heroImage} 
             alt="Premium Spices" 
             className="w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-linear-to-r from-black/70 to-black/50" />
         </div>
@@ -147,11 +155,15 @@ const Index = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+          <div>
               <img 
                 src={productImage} 
                 alt="Natural Premium Hing" 
                 className="w-full max-w-md rounded-lg shadow-xl object-cover"
+                loading="lazy"
+                decoding="async"
+                width={400}
+                height={400}
               />
             </div>
             

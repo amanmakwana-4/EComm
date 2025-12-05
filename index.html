@@ -3,35 +3,89 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <title>Royal Pure Spices — Natural Premium Hing & Spices</title>
-    <meta name="description" content="Royal Pure Spices — 100% pure, premium asafoetida (hing) and other authentic spices. Fast delivery across India." />
+    <!-- Primary Meta Tags -->
+    <title>Royal Pure Spices — Premium Hing & Authentic Indian Spices | Shop Online</title>
+    <meta name="title" content="Royal Pure Spices — Premium Hing & Authentic Indian Spices | Shop Online" />
+    <meta name="description" content="Buy 100% pure, premium asafoetida (hing) and authentic Indian spices online. Natural, fresh, and aromatic spices delivered across India. Free delivery on orders above ₹500." />
+    <meta name="keywords" content="hing, asafoetida, pure hing, premium spices, Indian spices, buy spices online, natural spices, organic hing, cooking spices, masala" />
     <meta name="author" content="Royal Pure Spices" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://royalpurespices.com/" />
 
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="Royal Pure Spices — Natural Premium Hing & Spices" />
-    <meta property="og:description" content="100% pure hing with premium aroma — sourced and packed for freshness. Shop now." />
+    <!-- Preconnect to external origins for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://supabase.co" />
+
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <!-- Replace with a real OG image file in /public (recommended 1200x630) -->
-    <meta property="og:image" content="/og-image.png" />
-    <!-- IMPORTANT: replace with your production URL in deployment (used by some crawlers) -->
-    <meta property="og:url" content="https://yourdomain.com/" />
+    <meta property="og:url" content="https://royalpurespices.com/" />
+    <meta property="og:title" content="Royal Pure Spices — Premium Hing & Authentic Indian Spices" />
+    <meta property="og:description" content="100% pure hing with premium aroma — sourced and packed for freshness. Fast delivery across India." />
+    <meta property="og:image" content="https://royalpurespices.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Royal Pure Spices" />
+    <meta property="og:locale" content="en_IN" />
 
-    <!-- Twitter Sharing -->
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Royal Pure Spices — Natural Premium Hing & Spices" />
+    <meta name="twitter:url" content="https://royalpurespices.com/" />
+    <meta name="twitter:title" content="Royal Pure Spices — Premium Hing & Authentic Indian Spices" />
     <meta name="twitter:description" content="100% pure hing with premium aroma — sourced and packed for freshness. Shop now." />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content="https://royalpurespices.com/og-image.png" />
 
-    <!-- Favicon (update if you have a real favicon) -->
-    <link rel="icon" href="/favicons.ico" />
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicons.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#d4a44a" />
+    <meta name="msapplication-TileColor" content="#d4a44a" />
 
-    <!-- Canonical: update to your production URL after deployment -->
-    <link rel="canonical" href="https://yourdomain.com/" />
+    <!-- Structured Data (JSON-LD) for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Royal Pure Spices",
+      "url": "https://royalpurespices.com/",
+      "description": "Premium quality pure hing and authentic Indian spices",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://royalpurespices.com/product?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Royal Pure Spices",
+      "url": "https://royalpurespices.com/",
+      "logo": "https://royalpurespices.com/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+91-XXXXXXXXXX",
+        "contactType": "customer service",
+        "areaServed": "IN",
+        "availableLanguage": ["English", "Hindi"]
+      }
+    }
+    </script>
   </head>
 
-  <body class="dark">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+

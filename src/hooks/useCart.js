@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 export const useCart = () => {
   const [items, setItems] = useState([]);
@@ -20,55 +20,70 @@ export const useCart = () => {
     }
   }, []);
 
-  const saveCart = (cartItems) => {
+  const saveCart = useCallback((cartItems) => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
     setItems(cartItems);
-  };
+  }, []);
 
-  const getCartKey = (item) => `${item.id}::${item.size ?? ""}`;
+  const getCartKey = useCallback((item) => `${item.id}::${item.size ?? ""}`, []);
 
-  const addItem = (item) => {
-    const key = getCartKey(item);
-    const existingItem = items.find((i) => i.cartId === key);
+  const addItem = useCallback((item) => {
+    setItems((prevItems) => {
+      const key = `${item.id}::${item.size ?? ""}`;
+      const existingItem = prevItems.find((i) => i.cartId === key);
 
-    if (existingItem) {
-      const updatedItems = items.map((i) =>
-        i.cartId === key ? { ...i, quantity: (i.quantity || 0) + 1 } : i
+      let updatedItems;
+      if (existingItem) {
+        updatedItems = prevItems.map((i) =>
+          i.cartId === key ? { ...i, quantity: (i.quantity || 0) + 1 } : i
+        );
+      } else {
+        const cartEntry = {
+          ...item,
+          quantity: 1,
+          cartId: key,
+        };
+        updatedItems = [...prevItems, cartEntry];
+      }
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
+      return updatedItems;
+    });
+  }, []);
+
+  const updateQuantity = useCallback((cartId, quantity) => {
+    setItems((prevItems) => {
+      if (quantity <= 0) {
+        const updatedItems = prevItems.filter((item) => item.cartId !== cartId);
+        localStorage.setItem("cart", JSON.stringify(updatedItems));
+        return updatedItems;
+      }
+
+      const updatedItems = prevItems.map((item) =>
+        item.cartId === cartId ? { ...item, quantity } : item
       );
-      saveCart(updatedItems);
-    } else {
-      const cartEntry = {
-        ...item,
-        quantity: 1,
-        cartId: key,
-      };
-      saveCart([...items, cartEntry]);
-    }
-  };
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
+      return updatedItems;
+    });
+  }, []);
 
-  const updateQuantity = (cartId, quantity) => {
-    if (quantity <= 0) {
-      removeItem(cartId);
-      return;
-    }
+  const removeItem = useCallback((cartId) => {
+    setItems((prevItems) => {
+      const updatedItems = prevItems.filter((item) => item.cartId !== cartId);
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
+      return updatedItems;
+    });
+  }, []);
 
-    const updatedItems = items.map((item) =>
-      item.cartId === cartId ? { ...item, quantity } : item
-    );
-    saveCart(updatedItems);
-  };
-
-  const removeItem = (cartId) => {
-    const updatedItems = items.filter((item) => item.cartId !== cartId);
-    saveCart(updatedItems);
-  };
-
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     localStorage.removeItem("cart");
     setItems([]);
-  };
+  }, []);
 
-  const total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
+  // Memoize total calculation
+  const total = useMemo(
+    () => items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0),
+    [items]
+  );
 
   return {
     items,
