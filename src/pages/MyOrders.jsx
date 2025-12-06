@@ -193,12 +193,31 @@ const MyOrders = () => {
 
                 <div className="border-t pt-4 mb-4">
                   <h3 className="font-semibold mb-2">Items:</h3>
-                  {Array.isArray(order.items) && order.items.map((item, index) => (
-                    <div key={index} className="flex justify-between py-2">
-                      <span>{item.product_name || item.name} x {item.quantity}</span>
-                      <span>₹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
+                  {Array.isArray(order.items) && order.items.map((item, index) => {
+                    const itemTotal = (item.price || 0) * (item.quantity || 1);
+                    return (
+                      <div key={index} className="flex justify-between py-2">
+                        <span>{item.product_name || item.name} x {item.quantity}</span>
+                        <span>₹{itemTotal.toFixed(2)}</span>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Subtotal and delivery breakdown */}
+                  <div className="border-t mt-2 pt-2 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal:</span>
+                      <span>₹{(Array.isArray(order.items) 
+                        ? order.items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0)
+                        : 0).toFixed(2)}</span>
                     </div>
-                  ))}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Delivery Charge:</span>
+                      <span>₹{((order.total_price || 0) - (Array.isArray(order.items) 
+                        ? order.items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0)
+                        : 0)).toFixed(2)}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="border-t pt-4">
@@ -223,18 +242,20 @@ const MyOrders = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center border-t pt-4">
-                    <span className="font-semibold">Payment Method:</span>
-                    <span className="text-muted-foreground">
-                      {order.payment_method === "cod" ? "Cash on Delivery" : "Online Payment"}
-                    </span>
-                  </div>
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="font-semibold">Payment Method:</span>
+                      <span className="text-muted-foreground">
+                        {order.payment_method === "cod" ? "Cash on Delivery" : "Online Payment"}
+                      </span>
+                    </div>
 
-                  <div className="flex justify-between items-center text-xl font-bold mt-4">
-                    <span>Total:</span>
-                    <span className="text-[hsl(var(--royal-gold))]">
-                      ₹{Number(order.total_price || 0).toFixed(2)}
-                    </span>
+                    <div className="flex justify-between items-center text-xl font-bold border-t pt-4">
+                      <span>Total Amount:</span>
+                      <span className="text-[hsl(var(--royal-gold))]">
+                        ₹{Number(order.total_price || 0).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Write Review button for delivered orders */}

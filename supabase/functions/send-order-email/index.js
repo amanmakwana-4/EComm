@@ -2,7 +2,14 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const resend = new Resend(RESEND_API_KEY);
+const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "Royal Pure Spices <onboarding@resend.dev>";
+
+if (!RESEND_API_KEY) {
+  console.error("⚠️  RESEND_API_KEY not configured! Emails will not be sent.");
+  console.error("Please set RESEND_API_KEY in Supabase Edge Functions environment variables.");
+}
+
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -221,44 +228,53 @@ const handler = async (req) => {
 
     // Send confirmation email to customer (best-effort)
     if (orderData?.customerEmail) {
-      try {
-        console.log("send-order-email: sending customer email to", orderData.customerEmail);
-        const customerEmailResponse = await resend.emails.send({
-          from: "Royal Pure Spices <onboarding@resend.dev>",
-          to: [orderData.customerEmail],
-          subject: `Order Confirmation - #${(orderData.orderId || "").slice(0, 8).toUpperCase()}`,
-          html: generateCustomerEmailHtml(orderData),
-        });
-        // Log full response for debugging
-        console.log("Customer email response:", JSON.stringify(customerEmailResponse, null, 2));
-        results.push({ type: "customer", resp: customerEmailResponse });
-      } catch (e) {
-        console.error("Failed to send customer email:", e);
-        sendErrors.push({ type: "customer", error: (e && e.message) || String(e), stack: e?.stack });
+      if (!resend) {
+        console.error("❌ Cannot send customer email: RESEND_API_KEY not configured");
+        sendErrors.push({ type: "customer", error: "RESEND_API_KEY not configured" });
+      } else {
+        try {
+          console.log("📧 Sending customer email to:", orderData.customerEmail);
+          const customerEmailResponse = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: [orderData.customerEmail],
+            subject: `Order Confirmation - #${(orderData.orderId || "").slice(0, 8).toUpperCase()}`,
+            html: generateCustomerEmailHtml(orderData),
+          });
+          console.log("✅ Customer email sent:", JSON.stringify(customerEmailResponse, null, 2));
+          results.push({ type: "customer", resp: customerEmailResponse });
+        } catch (e) {
+          console.error("❌ Failed to send customer email:", e);
+          sendErrors.push({ type: "customer", error: (e && e.message) || String(e), stack: e?.stack });
+        }
       }
     } else {
-      console.warn("No customerEmail provided; skipping customer email");
+      console.warn("⚠️  No customerEmail provided; skipping customer email");
     }
 
     // Send alert email to admin if email provided
     const adminEmail = orderData?.adminEmail || Deno.env.get("ADMIN_EMAIL");
     if (adminEmail) {
-      try {
-        console.log("send-order-email: sending admin email to", adminEmail);
-        const adminEmailResponse = await resend.emails.send({
-          from: "Royal Pure Spices <onboarding@resend.dev>",
-          to: [adminEmail],
-          subject: `🔔 New Order - #${(orderData.orderId || "").slice(0, 8).toUpperCase()} - ₹${Number(orderData?.totalPrice || 0).toFixed(2)}`,
-          html: generateAdminEmailHtml(orderData),
-        });
-        console.log("Admin email response:", JSON.stringify(adminEmailResponse, null, 2));
-        results.push({ type: "admin", resp: adminEmailResponse });
-      } catch (e) {
-        console.error("Failed to send admin email:", e);
-        sendErrors.push({ type: "admin", error: (e && e.message) || String(e), stack: e?.stack });
+      if (!resend) {
+        console.error("❌ Cannot send admin email: RESEND_API_KEY not configured");
+        sendErrors.push({ type: "admin", error: "RESEND_API_KEY not configured" });
+      } else {
+        try {
+          console.log("📧 Sending admin email to:", adminEmail);
+          const adminEmailResponse = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: [adminEmail],
+            subject: `🔔 New Order - #${(orderData.orderId || "").slice(0, 8).toUpperCase()} - ₹${Number(orderData?.totalPrice || 0).toFixed(2)}`,
+            html: generateAdminEmailHtml(orderData),
+          });
+          console.log("✅ Admin email sent:", JSON.stringify(adminEmailResponse, null, 2));
+          results.push({ type: "admin", resp: adminEmailResponse });
+        } catch (e) {
+          console.error("❌ Failed to send admin email:", e);
+          sendErrors.push({ type: "admin", error: (e && e.message) || String(e), stack: e?.stack });
+        }
       }
     } else {
-      console.warn("No admin email configured; skipping admin email");
+      console.warn("⚠️  No admin email configured (set ADMIN_EMAIL env var); skipping admin email");
     }
 
     // Return detailed results but do NOT return a generic 500 for email send failures (best-effort)
