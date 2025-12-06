@@ -1,20 +1,35 @@
-import { useState } from "react";
+import { useState, lazy, Suspense, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Minus, Plus, ShoppingCart, Star } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import productImage from "@/assets/productImage.jpeg";
+import { useReviewStats, useCanReview } from "@/hooks/useReviews";
+
+// Lazy load review components to keep main bundle small
+const ReviewList = lazy(() => import("@/components/reviews/ReviewList"));
+const ReviewForm = lazy(() => import("@/components/reviews/ReviewForm"));
+
+// Loading fallback for reviews section
+const ReviewsLoader = () => (
+  <div className="space-y-4">
+    <div className="h-8 bg-muted animate-pulse rounded w-48" />
+    <div className="h-24 bg-muted animate-pulse rounded" />
+  </div>
+);
 
 const Product = () => {
   const [quantity, setQuantity] = useState(1);
   const deliveryCharge = 100; // default delivery charge per item
   const useDbVariants = import.meta.env.VITE_USE_DB_VARIANTS === "true";
+  const { user } = useAuth();
 
   const { data: product } = useQuery({
     queryKey: ["product"],
@@ -28,6 +43,20 @@ const Product = () => {
       return data;
     },
   });
+
+  // Fetch real review stats
+  const { data: reviewStats } = useReviewStats(product?.id);
+  
+  // Check if user can review (for layout purposes)
+  const { data: canReview } = useCanReview(product?.id, user?.id);
+
+  // Calculate rounded average for star display
+  const averageRating = useMemo(() => {
+    if (!reviewStats?.average_rating) return 5; // Default to 5 stars if no reviews
+    return Math.round(reviewStats.average_rating);
+  }, [reviewStats?.average_rating]);
+
+  const reviewCount = reviewStats?.review_count || 0;
 
   const { data: variants, isLoading: variantsLoading } = useQuery({
     queryKey: ["product-variants", product?.id],
@@ -101,11 +130,23 @@ const Product = () => {
             
             <div className="flex items-center gap-2 mb-6">
               <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-[hsl(var(--royal-gold))] text-[hsl(var(--royal-gold))]" />
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className={`w-5 h-5 ${
+                      star <= averageRating
+                        ? "fill-[hsl(var(--royal-gold))] text-[hsl(var(--royal-gold))]"
+                        : "text-gray-300"
+                    }`}
+                  />
                 ))}
               </div>
-              <span className="text-muted-foreground">(50+ reviews)</span>
+              <span className="text-muted-foreground">
+                {reviewCount > 0 
+                  ? `(${reviewCount} ${reviewCount === 1 ? "review" : "reviews"})`
+                  : "(No reviews yet)"
+                }
+              </span>
             </div>
 
             <div className="mb-6">
@@ -227,6 +268,27 @@ const Product = () => {
             </Card>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <section className="mt-16">
+          <h2 className="text-2xl font-bold mb-8">Customer Reviews</h2>
+          
+          <div className="space-y-8">
+            {/* Review Form - shown first if user can review */}
+            {canReview && (
+              <div className="max-w-3xl mx-auto">
+                <Suspense fallback={<ReviewsLoader />}>
+                  <ReviewForm productId={product.id} />
+                </Suspense>
+              </div>
+            )}
+            
+            {/* Review List - always full width */}
+            <Suspense fallback={<ReviewsLoader />}>
+              <ReviewList productId={product.id} />
+            </Suspense>
+          </div>
+        </section>
       </main>
 
       <Footer />

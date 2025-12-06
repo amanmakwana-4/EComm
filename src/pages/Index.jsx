@@ -8,10 +8,11 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useProductReviews } from "@/hooks/useReviews";
+import { format } from "date-fns";
 import heroImage from "@/assets/hero-spices.jpg";
 import productImage from "@/assets/productImage.jpeg";
 
-// Feature flag: enable DB-backed variants if VITE_USE_DB_VARIANTS=true
 const useDbVariantsFlag = import.meta.env.VITE_USE_DB_VARIANTS === "true";
 const fallbackSizes = [
   { label: "10g", price: 140 },
@@ -60,6 +61,10 @@ const Index = () => {
       : fallbackSizes,
     [variants]
   );
+
+  // Fetch top 3 most recent reviews for the homepage
+  const { data: reviews = [] } = useProductReviews(product?.id);
+  const topReviews = useMemo(() => reviews.slice(0, 3), [reviews]);
 
   // Memoize add to cart handler
   const handleAddToCart = useCallback(() => {
@@ -258,40 +263,45 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Customer Reviews */}
       <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">What Our Customers Say</h2>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Priya Sharma",
-                text: "The aroma is absolutely authentic! Best quality hing I've ever used.",
-                rating: 5
-              },
-              {
-                name: "Rajesh Kumar",
-                text: "Pure and natural, just as promised. My family loves the authentic taste.",
-                rating: 5
-              },
-              {
-                name: "Anita Patel",
-                text: "Fast delivery and excellent packaging. The quality is outstanding!",
-                rating: 5
-              }
-            ].map((testimonial, index) => (
-              <Card key={index} className="p-6">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-[hsl(var(--royal-gold))] text-[hsl(var(--royal-gold))]" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4">"{testimonial.text}"</p>
-                <p className="font-semibold">- {testimonial.name}</p>
-              </Card>
-            ))}
-          </div>
+          {topReviews.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-8">
+              {topReviews.map((review) => {
+                const userName = review.user_name || "Anonymous";
+                const reviewDate = new Date(review.created_at);
+                const formattedDate = format(reviewDate, "MMM d, yyyy");
+                const formattedTime = format(reviewDate, "h:mm a");
+                
+                return (
+                  <Card key={review.id} className="p-6">
+                    <div className="flex mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`w-5 h-5 ${
+                            i < review.rating 
+                              ? "fill-[hsl(var(--royal-gold))] text-[hsl(var(--royal-gold))]" 
+                              : "text-gray-300"
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                    <p className="text-muted-foreground mb-4">"{review.comment}"</p>
+                    <p className="font-semibold">- {userName}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {formattedDate} at {formattedTime}
+                    </p>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground">No reviews yet. Be the first to share your experience!</p>
+          )}
         </div>
       </section>
 

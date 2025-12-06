@@ -12,9 +12,6 @@ export default defineConfig({
     tailwindcss(),
   ],
   build: {
-    rollupOptions: {
-      external: ["zod"]
-    },
     // Target modern browsers for smaller bundles
     target: "es2020",
     // Enable minification
@@ -25,6 +22,7 @@ export default defineConfig({
     cssMinify: true,
     // Chunk splitting configuration
     rollupOptions: {
+      external: ["zod"],
       output: {
         // Manual chunk splitting for optimal caching
         manualChunks: (id) => {
