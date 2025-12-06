@@ -1,9 +1,10 @@
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCanReview, useUserReview, useSubmitReview, useUpdateReview, useDeleteReview } from "@/hooks/useReviews";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -56,6 +57,28 @@ const ReviewForm = memo(function ReviewForm({ productId }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  // Fetch user's name from orders or profile
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!user?.id) return;
+
+      // Try to get name from orders first
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("customer_name")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+
+      if (orderData?.customer_name) {
+        setUserName(orderData.customer_name);
+      }
+    };
+
+    fetchUserName();
+  }, [user?.id]);
 
   // Initialize form with existing review data when editing
   const startEditing = useCallback(() => {
@@ -100,6 +123,7 @@ const ReviewForm = memo(function ReviewForm({ productId }) {
           userId: user.id,
           rating,
           comment: comment.trim(),
+          userName: userName || null,
         });
         toast.success("Thank you for your review!");
         setRating(0);

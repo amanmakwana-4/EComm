@@ -12,26 +12,28 @@ export const useProductReviews = (productId) => {
       if (!productId) return [];
       
       try {
-        // Get reviews from database
+        // Get reviews from database with user_name field
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("reviews")
-          .select("id, user_id, product_id, rating, comment, created_at")
+          .select("id, user_id, product_id, rating, comment, created_at, user_name")
           .eq("product_id", productId)
           .order("created_at", { ascending: false });
 
         if (reviewsError) return [];
         if (!reviewsData || reviewsData.length === 0) return [];
         
-        // Get all unique user IDs
-        const userIds = [...new Set(reviewsData.map(review => review.user_id))];
+        // Get user IDs that don't have a user_name
+        const userIdsNeedingNames = reviewsData
+          .filter(review => !review.user_name)
+          .map(review => review.user_id);
         
-        // Batch fetch customer names from orders for all users at once
+        // Batch fetch customer names from orders for users without stored names
         let customerNames = {};
-        if (userIds.length > 0) {
+        if (userIdsNeedingNames.length > 0) {
           const { data: ordersData } = await supabase
             .from("orders")
             .select("user_id, customer_name")
-            .in("user_id", userIds);
+            .in("user_id", userIdsNeedingNames);
           
           // Create a map of user_id to customer_name
           if (ordersData) {
@@ -43,9 +45,9 @@ export const useProductReviews = (productId) => {
           }
         }
         
-        // Map reviews with names from orders
+        // Map reviews - prefer stored user_name, fallback to orders lookup
         const reviewsWithNames = reviewsData.map((review) => {
-          const userName = customerNames[review.user_id] || null;
+          const userName = review.user_name || customerNames[review.user_id] || null;
           return {
             ...review,
             user_name: userName
@@ -166,7 +168,7 @@ export const useSubmitReview = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ productId, userId, rating, comment }) => {
+    mutationFn: async ({ productId, userId, rating, comment, userName }) => {
       const { data, error } = await supabase
         .from("reviews")
         .insert({
@@ -174,6 +176,7 @@ export const useSubmitReview = () => {
           user_id: userId,
           rating,
           comment,
+          user_name: userName,
         })
         .select()
         .single();
