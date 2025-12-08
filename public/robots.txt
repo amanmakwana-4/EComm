@@ -9,7 +9,7 @@ Disallow: /admin/
 Disallow: /auth
 
 # Sitemap location (update with your actual domain)
-Sitemap: https://royalpurespices.com/sitemap.xml
+Sitemap: https://e-comm-seven-dun.vercel.app/sitemap.xml
 
 # Crawl delay for politeness
 Crawl-delay: 1
