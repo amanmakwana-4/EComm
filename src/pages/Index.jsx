@@ -12,6 +12,7 @@ import { useProductReviews } from "@/hooks/useReviews";
 import { format } from "date-fns";
 import heroImage from "@/assets/hero-spices.jpg";
 import productImage from "@/assets/productImage.jpeg";
+import Seo from "@/components/Seo";
 
 const useDbVariantsFlag = import.meta.env.VITE_USE_DB_VARIANTS === "true";
 const fallbackSizes = [
@@ -82,7 +83,13 @@ const Index = () => {
   }, [product, sizes, selectedSizeIndex, addItem]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Seo
+        title="Royal Pure Spices | Natural Premium Hing"
+        description="Experience pure asafoetida with authentic aroma, premium quality, and warm delivery from Royal Pure Spices."
+        path="/"
+      />
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
@@ -340,7 +347,8 @@ const Index = () => {
 
       <Footer />
     </div>
-  );
+  </>
+);
 };
 
 export default Index;

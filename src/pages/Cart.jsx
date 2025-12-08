@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
+import Seo from "@/components/Seo";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, total } = useCart();
@@ -12,25 +13,38 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="grow container mx-auto px-4 py-12 flex flex-col items-center justify-center">
-          <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
-          <p className="text-muted-foreground mb-8">Add some items to get started!</p>
-          <Link to="/product">
-            <Button size="lg">Browse Products</Button>
-          </Link>
-        </main>
-        <Footer />
-      </div>
+      <>
+        <Seo
+          title="Cart | Royal Pure Spices"
+          description="Your cart at Royal Pure Spices. Add authentic hing to proceed to checkout."
+          path="/cart"
+        />
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="grow container mx-auto px-4 py-12 flex flex-col items-center justify-center">
+            <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
+            <p className="text-muted-foreground mb-8">Add some items to get started!</p>
+            <Link to="/product">
+              <Button size="lg">Browse Products</Button>
+            </Link>
+          </main>
+          <Footer />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="grow container mx-auto px-4 py-12">
+    <>
+      <Seo
+        title="Shopping Cart | Royal Pure Spices"
+        description="Review your handpicked natural hing before placing an order with Royal Pure Spices."
+        path="/cart"
+      />
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        
+        <main className="grow container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
         
         <div className="grid lg:grid-cols-3 gap-8">
@@ -145,8 +159,9 @@ const Cart = () => {
         </div>
       </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 

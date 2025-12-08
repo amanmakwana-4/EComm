@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import productImage from "@/assets/productImage.jpeg";
 import { useReviewStats, useCanReview } from "@/hooks/useReviews";
+import Seo from "@/components/Seo";
 
 // Lazy load review components to keep main bundle small
 const ReviewList = lazy(() => import("@/components/reviews/ReviewList"));
@@ -106,11 +107,29 @@ const Product = () => {
   };
 
   if (!product) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <Seo
+          title="Natural Premium Hing | Royal Pure Spices"
+          description="Loading product details for Royal Pure Spices."
+          path="/product"
+        />
+        <div>Loading...</div>
+      </>
+    );
   }
 
+  const productTitle = `${product.name} | Royal Pure Spices`;
+  const productDescription = product.short_description || "Shop the premium hing collection at Royal Pure Spices with trusted sourcing and natural aroma.";
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Seo
+        title={productTitle}
+        description={productDescription}
+        path="/product"
+      />
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="grow container mx-auto px-4 py-12">
@@ -293,7 +312,8 @@ const Product = () => {
 
       <Footer />
     </div>
-  );
+  </>
+);
 };
 
 export default Product;

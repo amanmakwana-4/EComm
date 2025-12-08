@@ -46,7 +46,7 @@ const Navbar = memo(function Navbar() {
               height={64}
               loading="eager"
             />
-            <span className="hidden md:inline-block text-2xl font-bold">
+            <span className="md:inline-block text-xl font-bold">
               Royal <span className="text-[hsl(var(--royal-gold))]">Pure</span> Spices
             </span>
           </Link>

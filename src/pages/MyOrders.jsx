@@ -10,6 +10,13 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Star } from "lucide-react";
+import Seo from "@/components/Seo";
+
+const MY_ORDERS_META = {
+  title: "My Orders | Royal Pure Spices",
+  description: "View your order history as a logged-in user or search guest orders using your email.",
+  path: "/my-orders",
+};
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -214,10 +221,12 @@ const MyOrders = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="grow container mx-auto px-4 py-12">
+    <>
+      <Seo {...MY_ORDERS_META} />
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        
+        <main className="grow container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-8">My Orders</h1>
 
         {guestMode && (
@@ -406,10 +415,11 @@ const MyOrders = () => {
             )}
           </div>
         )}
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 

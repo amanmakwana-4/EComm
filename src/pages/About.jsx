@@ -2,13 +2,22 @@ import { Card } from "@/components/ui/card";
 import { Award, Heart, Leaf, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
+
+const ABOUT_META = {
+  title: "About Royal Pure Spices",
+  description: "Learn how Royal Pure Spices sources and crafts premium natural hing for your kitchen.",
+  path: "/about",
+};
 
 const About = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="grow">
+    <>
+      <Seo {...ABOUT_META} />
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        
+        <main className="grow">
         {/* Hero Section */}
         <section className="bg-linear-to-r from-primary to-primary/80 text-primary-foreground py-20">
           <div className="container mx-auto px-4 text-center">
@@ -142,10 +151,11 @@ const About = () => {
             </div>
           </div>
         </section>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 

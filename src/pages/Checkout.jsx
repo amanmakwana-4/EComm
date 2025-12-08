@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import Seo from "@/components/Seo";
 
 const checkoutSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -22,6 +23,12 @@ const checkoutSchema = z.object({
 });
 
 const DELIVERY_CHARGE = 100;
+const CHECKOUT_META = {
+  title: "Secure Checkout | Royal Pure Spices",
+  description:
+    "Finalize your Royal Pure Spices order with trusted checkout, COD payment, and optionally waive delivery with promo codes.",
+  path: "/checkout",
+};
 
 const Checkout = () => {
   const { items, total, clearCart } = useCart();
@@ -223,11 +230,17 @@ const Checkout = () => {
 
         // Render UI
         return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
+          <>
+            <Seo
+              title={CHECKOUT_META.title}
+              description={CHECKOUT_META.description}
+              path={CHECKOUT_META.path}
+            />
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
 
-        <main className="grow container mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+              <main className="grow container mx-auto px-4 py-12">
+                <h1 className="text-3xl font-bold mb-8">Checkout</h1>
         
         <form onSubmit={handleSubmit}>
           <div className="grid lg:grid-cols-3 gap-8">
@@ -449,7 +462,8 @@ const Checkout = () => {
 
       <Footer />
     </div>
-  );
+  </>
+);
 };
 
 export default Checkout;

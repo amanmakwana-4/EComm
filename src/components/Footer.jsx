@@ -43,7 +43,7 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Contact Info</h4>
             <p className="text-sm text-muted-foreground">
-              Email: royalpurespicespvtltd.com<br />
+              Email: royalpurespicespvtltd@gmail.com<br />
               Phone: +91 9203605553
             </p>
           </div>

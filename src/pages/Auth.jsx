@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import Seo from "@/components/Seo";
 
 const signupSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),
@@ -22,6 +23,12 @@ const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
+
+const AUTH_META = {
+  title: "Sign In | Royal Pure Spices",
+  description: "Sign in or sign up to manage your orders, wishlists, and reviews for Royal Pure Spices.",
+  path: "/auth",
+};
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -144,11 +151,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="grow container mx-auto px-4 py-12 flex items-center justify-center">
-        <Card className="w-full max-w-md p-8">
+    <>
+      <Seo {...AUTH_META} />
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        
+        <main className="grow container mx-auto px-4 py-12 flex items-center justify-center">
+          <Card className="w-full max-w-md p-8">
           <h1 className="text-3xl font-bold text-center mb-8">Welcome</h1>
           
           <Tabs defaultValue="login" className="w-full">
@@ -293,10 +302,11 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
         </Card>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 

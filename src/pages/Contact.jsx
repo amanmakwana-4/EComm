@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import Seo from "@/components/Seo";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -17,6 +18,12 @@ const contactSchema = z.object({
   phone: z.string().trim().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit phone number").optional().or(z.literal("")),
   message: z.string().trim().min(10, "Message must be at least 10 characters").max(1000),
 });
+
+const CONTACT_META = {
+  title: "Contact Us | Royal Pure Spices",
+  description: "Have a question? Reach out for support, wholesale inquiries, or product guidance.",
+  path: "/contact",
+};
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -87,10 +94,12 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <>
+      <Seo {...CONTACT_META} />
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
 
-      <main className="grow">
+        <main className="grow">
         <section className="bg-linear-to-r from-primary to-primary/80 text-primary-foreground py-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
@@ -226,10 +235,11 @@ const Contact = () => {
             </div>
           </div>
         </section>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 
