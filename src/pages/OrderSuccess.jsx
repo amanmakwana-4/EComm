@@ -151,7 +151,7 @@ const OrderSuccess = () => {
               </Link>
               <Link to="/product">
                 <Button size="lg" variant="outline">
-                  Continue Shopping
+                  Continue Shopping.
                 </Button>
               </Link>
             </div>
