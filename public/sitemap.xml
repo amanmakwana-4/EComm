@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- sitemap refresh v2 -->
+<!-- sitemap-refresh-unique-id: 2025-12-08-xyz12345 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
     <loc>https://e-comm-seven-dun.vercel.app/</loc>
     <changefreq>daily</changefreq>
