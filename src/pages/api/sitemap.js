@@ -2,15 +2,67 @@ export default function handler(req, res) {
   res.setHeader("Content-Type", "application/xml; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
 
-  // Load the static XML from the public folder
-  const xml = `
-  <?xml version="1.0" encoding="UTF-8"?>
-  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-      <loc>https://e-comm-seven-dun.vercel.app/</loc>
-    </url>
-  </urlset>
-  `;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- sitemap-refresh-unique-id: 2025-12-08-xyz12345 -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/product/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/cart/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/checkout/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/order-success/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/my-orders/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/about/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/contact/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/auth/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/admin/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-seven-dun.vercel.app/admin/login/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>`;
 
   res.status(200).send(xml);
 }
