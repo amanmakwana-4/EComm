@@ -5,7 +5,7 @@
       "dest": "/sitemap.xml",
       "headers": {
         "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "public, max-age=0, must-revalidate"
+        "Cache-Control": "no-store"
       }
     },
     {
@@ -13,7 +13,7 @@
       "dest": "/robots.txt",
       "headers": {
         "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "public, max-age=0, must-revalidate"
+        "Cache-Control": "no-store"
       }
     },
     {
