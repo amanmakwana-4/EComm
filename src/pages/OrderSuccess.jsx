@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Helmet } from "react-helmet-async";
 
 const OrderSuccess = () => {
   const location = useLocation();
@@ -50,7 +51,15 @@ const OrderSuccess = () => {
   }, [orderId]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Helmet>
+        <title>Order Confirmed | Royal Pure Spices</title>
+        <meta
+          name="description"
+          content="Thank you for your Royal Pure Spices order. Tracking details and next steps are on their way to your inbox."
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="grow container mx-auto px-4 py-12 flex items-center justify-center">
@@ -129,7 +138,8 @@ const OrderSuccess = () => {
       </main>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

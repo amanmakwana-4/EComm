@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -221,9 +222,17 @@ const Checkout = () => {
     }
   };
 
-        // Render UI
-        return (
-      <div className="flex flex-col min-h-screen">
+    // Render UI
+    return (
+      <>
+        <Helmet>
+          <title>Checkout | Royal Pure Spices Pvt Ltd | Secure Payment</title>
+          <meta
+            name="description"
+            content="Securely place your order for the finest Royal Pure Hing with reliable delivery, coupon support, and COD payment."
+          />
+        </Helmet>
+        <div className="flex flex-col min-h-screen">
         <Navbar />
 
         <main className="grow container mx-auto px-4 py-12">
@@ -449,7 +458,8 @@ const Checkout = () => {
 
       <Footer />
     </div>
-  );
+  </>
+);
 };
 
 export default Checkout;

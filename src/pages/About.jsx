@@ -2,10 +2,19 @@ import { Card } from "@/components/ui/card";
 import { Award, Heart, Leaf, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Helmet } from "react-helmet-async";
 
 const About = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Helmet>
+        <title>About Royal Pure Spices Pvt Ltd</title>
+        <meta
+          name="description"
+          content="Learn how Royal Pure Spices sources and crafts premium Hing with transparency, quality, and customer care at the core."
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="grow">
@@ -146,6 +155,7 @@ const About = () => {
 
       <Footer />
     </div>
+    </>
   );
 };
 

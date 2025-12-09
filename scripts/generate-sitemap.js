@@ -17,7 +17,7 @@ import path from "path";
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OUTPUT_PATH = path.resolve(process.cwd(), "public", "sitemap.xml");
-const SITE_URL = process.env.SITE_URL || "https://yourdomain.com"; // replace with your site URL or set SITE_URL env var
+const SITE_URL = process.env.SITE_URL || "https://e-comm-lilac-alpha.vercel.app"; // replace with your site URL or set SITE_URL env var
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.warn("Warning: SUPABASE_URL or SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY not set. The sitemap will contain static pages only.");

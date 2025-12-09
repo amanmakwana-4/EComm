@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, total } = useCart();
@@ -12,7 +13,15 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <>
+        <Helmet>
+          <title>Cart | Royal Pure Spices | Add Premium Hing to Your Order</title>
+          <meta
+            name="description"
+            content="Review items in your cart and proceed to buy Royal Pure Hing with secure checkout and fast delivery."
+          />
+        </Helmet>
+        <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="grow container mx-auto px-4 py-12 flex flex-col items-center justify-center">
           <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
@@ -23,11 +32,20 @@ const Cart = () => {
         </main>
         <Footer />
       </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Helmet>
+        <title>Cart | Royal Pure Spices | Checkout Premium Hing</title>
+        <meta
+          name="description"
+          content="Review your selected Royal Pure Hing variants, adjust quantities, and head to secure checkout with full price transparency."
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="grow container mx-auto px-4 py-12">
@@ -147,6 +165,7 @@ const Cart = () => {
 
       <Footer />
     </div>
+    </>
   );
 };
 

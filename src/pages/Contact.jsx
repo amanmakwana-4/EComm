@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { Helmet } from "react-helmet-async";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -87,7 +88,15 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Helmet>
+        <title>Contact Royal Pure Spices</title>
+        <meta
+          name="description"
+          content="Send a message to Royal Pure Spices for customer support, wholesale inquiries, or general questions about our hing products." 
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
       <Navbar />
 
       <main className="grow">
@@ -230,6 +239,7 @@ const Contact = () => {
 
       <Footer />
     </div>
+    </>
   );
 };
 

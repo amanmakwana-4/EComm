@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -37,7 +38,15 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <>
+      <Helmet>
+        <title>Admin Login | Royal Pure Spices</title>
+        <meta
+          name="description"
+          content="Secure admin login for managing Royal Pure Spices orders and customer data."
+        />
+      </Helmet>
+      <div className="min-h-screen flex items-center justify-center bg-background">
       <Card className="p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6">Admin Login</h1>
         <form onSubmit={handleLogin} className="space-y-4">
@@ -52,7 +61,8 @@ const AdminLogin = () => {
           <Button type="submit" className="w-full">Login</Button>
         </form>
       </Card>
-    </div>
+      </div>
+    </>
   );
 };
 

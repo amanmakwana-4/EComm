@@ -2,6 +2,7 @@ import { useState, lazy, Suspense, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Minus, Plus, ShoppingCart, Star } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
@@ -110,7 +111,15 @@ const Product = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Helmet>
+        <title>Buy Premium Royal Pure Hing | Royal Pure Spices Pvt Ltd</title>
+        <meta
+          name="description"
+          content="Discover authentic Royal Pure Hing, carefully sourced and crafted to preserve aroma, delivered nationwide."
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="grow container mx-auto px-4 py-12">
@@ -293,6 +302,7 @@ const Product = () => {
 
       <Footer />
     </div>
+    </>
   );
 };
 

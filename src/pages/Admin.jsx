@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { Package, Users, IndianRupee, ShoppingCart, LogOut, Eye, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Helmet } from "react-helmet-async";
 
 const ORDERS_PER_PAGE = 15;
 
@@ -185,8 +186,16 @@ const Admin = () => {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="max-w-xl p-6 bg-white rounded shadow">
+      <>
+        <Helmet>
+          <title>Admin | Royal Pure Spices</title>
+          <meta
+            name="description"
+            content="Admin access to view and manage orders. Please log in with an authorized Royal Pure Spices account."
+          />
+        </Helmet>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="max-w-xl p-6 bg-white rounded shadow">
           <h3 className="text-lg font-semibold mb-2 text-red-600">Access denied - Admin privileges required</h3>
           <p className="text-sm text-muted-foreground mb-4">Your account does not have admin role.</p>
           <div className="mb-4">
@@ -200,11 +209,20 @@ const Admin = () => {
           </div>
         </div>
       </div>
+    </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <>
+      <Helmet>
+        <title>Admin Dashboard | Royal Pure Spices</title>
+        <meta
+          name="description"
+          content="Monitor orders, revenue, and customer data for Royal Pure Spices from the admin dashboard powered by Supabase."
+        />
+      </Helmet>
+      <div className="min-h-screen bg-muted/30">
       <header className="bg-background border-b top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-[hsl(var(--royal-gold))]">Royal Pure Spices - Admin</h1>
@@ -544,6 +562,7 @@ const Admin = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

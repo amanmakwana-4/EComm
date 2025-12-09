@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Star } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -203,18 +204,35 @@ const MyOrders = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <>
+        <Helmet>
+          <title>My Orders | Royal Pure Spices</title>
+          <meta
+            name="description"
+            content="Loading your order history so you can track previous Royal Pure Hing purchases and delivery status."
+          />
+        </Helmet>
+        <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="grow container mx-auto px-4 py-12">
           <div className="text-center">Loading your orders...</div>
         </main>
         <Footer />
-      </div>
-    );
+          </div>
+        </>
+      );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+      <>
+        <Helmet>
+          <title>My Orders | Royal Pure Spices</title>
+          <meta
+            name="description"
+            content="View and track your Royal Pure Spices order history, including guest orders and delivery status."
+          />
+        </Helmet>
+        <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="grow container mx-auto px-4 py-12">
@@ -409,7 +427,8 @@ const MyOrders = () => {
       </main>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

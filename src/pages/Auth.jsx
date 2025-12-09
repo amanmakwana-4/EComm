@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Helmet } from "react-helmet-async";
 
 const signupSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),
@@ -144,7 +145,15 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Helmet>
+        <title>Login or Sign Up | Royal Pure Spices</title>
+        <meta
+          name="description"
+          content="Log in or create an account to shop Royal Pure Hing, track orders, and manage your preferences."
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="grow container mx-auto px-4 py-12 flex items-center justify-center">
@@ -297,6 +306,7 @@ const Auth = () => {
 
       <Footer />
     </div>
+    </>
   );
 };
 

@@ -1,44 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   sitemap.xml
-  - Replace `https://yourdomain.com` with your production URL (e.g. https://royalpurespices.com)
-  - Add or remove <url> entries for any pages you want Google to crawl.
+  - This file lists the canonical, static routes that should be crawled.
+  - Dynamic product URLs are generated from Supabase via scripts/generate-sitemap.js.
+  - Update `SITE_URL` in the script if the deployment domain changes.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://yourdomain.com/</loc>
+    <loc>https://e-comm-lilac-alpha.vercel.app/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://yourdomain.com/product</loc>
+    <loc>https://e-comm-lilac-alpha.vercel.app/product/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://yourdomain.com/about</loc>
+    <loc>https://e-comm-lilac-alpha.vercel.app/cart/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-lilac-alpha.vercel.app/checkout/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-lilac-alpha.vercel.app/order-success/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-lilac-alpha.vercel.app/my-orders/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://e-comm-lilac-alpha.vercel.app/about/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://yourdomain.com/contact</loc>
+    <loc>https://e-comm-lilac-alpha.vercel.app/contact/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://yourdomain.com/cart</loc>
+    <loc>https://e-comm-lilac-alpha.vercel.app/auth/</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://yourdomain.com/checkout</loc>
+    <loc>https://e-comm-lilac-alpha.vercel.app/admin/</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://yourdomain.com/auth</loc>
+    <loc>https://e-comm-lilac-alpha.vercel.app/admin/login/</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.3</priority>
   </url>
-  <!-- Add other routes as needed -->
 </urlset>

@@ -3,6 +3,7 @@ import { useState, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, ShoppingCart, Shield, Truck } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
@@ -82,7 +83,15 @@ const Index = () => {
   }, [product, sizes, selectedSizeIndex, addItem]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <Helmet>
+        <title>Royal Pure Spices Pvt Ltd | Premium Hing & Authentic Flavors</title>
+        <meta
+          name="description"
+          content="Shop Royal Pure Spices premium Hing and natural condiments for rich aroma and authentic Indian flavor."
+        />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
@@ -340,6 +349,7 @@ const Index = () => {
 
       <Footer />
     </div>
+    </>
   );
 };
 
