@@ -61,9 +61,10 @@ export default defineConfig({
           ) {
             return "ui-utils";
           }
-          // Lucide icons
+          // Lucide icons rely on React and should stay with the React vendor bundle to ensure
+          // the shared runtime is initialized before Lucide executes.
           if (id.includes("node_modules/lucide-react")) {
-            return "icons";
+            return "react-vendor";
           }
           // Sonner toast
           if (id.includes("node_modules/sonner")) {
