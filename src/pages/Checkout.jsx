@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -61,6 +61,12 @@ const Checkout = () => {
         }
 
         // Select only known columns to avoid errors if the DB schema is missing optional columns
+        const supabase = getSupabaseClient();
+        if (!supabase) {
+          setFormData(prev => ({ ...prev, email: user.email || "" }));
+          return;
+        }
+
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("full_name,phone")
@@ -130,6 +136,8 @@ const Checkout = () => {
     setCouponLoading(true);
     setCouponMessage("");
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error("Supabase client unavailable");
       const { data, error } = await supabase.functions.invoke("validate-promo", { body: { code: trimmedCode } });
       if (error) throw error;
       if (data?.valid) {
@@ -199,6 +207,8 @@ const Checkout = () => {
         coupon_applied: couponApplied,
       };
 
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error("Supabase client unavailable");
       const { data, error } = await supabase.functions.invoke("create-order", { body: payload });
       if (error) throw error;
 

@@ -5,7 +5,7 @@ import { CheckCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 
 const OrderSuccess = () => {
   const location = useLocation();
@@ -26,6 +26,12 @@ const OrderSuccess = () => {
       if (!orderId) return;
       setLoading(true);
       try {
+        const supabase = getSupabaseClient();
+        if (!supabase) {
+          setError("Client not initialized");
+          return;
+        }
+
         const { data, error } = await supabase
           .from("orders")
           .select("*")

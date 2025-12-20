@@ -9,8 +9,8 @@ const manualChunks = (id) => {
   const normalizedId = normalizeId(id);
   if (!normalizedId) return;
 
-  if (normalizedId.includes("node_modules/@supabase")) return "supabase";
   if (normalizedId.includes("lucide-react")) return "icons";
+
   if (
     normalizedId.includes("clsx") ||
     normalizedId.includes("tailwind-merge") ||
@@ -20,7 +20,9 @@ const manualChunks = (id) => {
   ) {
     return "ui";
   }
+
   if (normalizedId.includes("/src/pages/Admin")) return "admin";
+
   if (normalizedId.includes("node_modules")) return "vendor";
 };
 
@@ -30,13 +32,21 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+
   plugins: [react(), tailwindcss()],
+
   build: {
     target: "es2020",
     minify: "esbuild",
     cssMinify: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
+
+    // ✅ FIX: prevents "exports is not defined"
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+
     rollupOptions: {
       output: {
         manualChunks,
@@ -53,12 +63,14 @@ export default defineConfig({
       },
     },
   },
+
+  // ✅ Supabase MUST NOT be pre-bundled
   optimizeDeps: {
+    exclude: ["@supabase/supabase-js"],
     include: [
       "react",
       "react-dom",
       "react-router-dom",
-      "@supabase/supabase-js",
       "@tanstack/react-query",
     ],
   },

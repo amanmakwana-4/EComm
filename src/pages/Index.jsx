@@ -7,7 +7,7 @@ import { Star, ShoppingCart, Shield, Truck } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useProductReviews } from "@/hooks/useReviews";
 import { format } from "date-fns";
@@ -31,6 +31,8 @@ const Index = () => {
   const { data: product } = useQuery({
     queryKey: ["product"],
     queryFn: async () => {
+      const supabase = getSupabaseClient();
+      if (!supabase) return null;
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -46,6 +48,8 @@ const Index = () => {
     queryKey: ["product-variants", product?.id],
     enabled: Boolean(product) && useDbVariantsFlag,
     queryFn: async () => {
+      const supabase = getSupabaseClient();
+      if (!supabase) return [];
       const { data, error } = await supabase
         .from("product_variants")
         .select("size,price")
@@ -99,7 +103,7 @@ const Index = () => {
             alt="Premium Spices" 
             className="w-full h-full object-cover"
             loading="eager"
-            fetchPriority="high"
+            fetchpriority="high"
             decoding="async"
           />
           <div className="absolute inset-0 bg-linear-to-r from-black/70 to-black/50" />

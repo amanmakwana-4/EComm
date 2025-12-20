@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 
 /**
  * Fetch all reviews for a specific product
@@ -10,7 +10,9 @@ export const useProductReviews = (productId) => {
     queryKey: ["reviews", productId],
     queryFn: async () => {
       if (!productId) return [];
-      
+      const supabase = getSupabaseClient();
+      if (!supabase) return [];
+
       try {
         // Get reviews from database with user_name field
         const { data: reviewsData, error: reviewsError } = await supabase
@@ -74,6 +76,9 @@ export const useReviewStats = (productId) => {
     queryFn: async () => {
       if (!productId) return { review_count: 0, average_rating: 0 };
       
+      const supabase = getSupabaseClient();
+      if (!supabase) return { review_count: 0, average_rating: 0 };
+
       const { data, error } = await supabase
         .from("product_review_stats")
         .select("*")
@@ -98,6 +103,9 @@ export const useTopReviews = (productId, limit = 3) => {
     queryFn: async () => {
       if (!productId) return [];
       
+      const supabase = getSupabaseClient();
+      if (!supabase) return [];
+
       const { data, error } = await supabase
         .from("reviews")
         .select("*")
@@ -123,6 +131,9 @@ export const useCanReview = (productId, userId) => {
     queryFn: async () => {
       if (!productId || !userId) return false;
       
+      const supabase = getSupabaseClient();
+      if (!supabase) return false;
+
       const { data, error } = await supabase
         .rpc("can_user_review_product", {
           p_user_id: userId,
@@ -147,6 +158,9 @@ export const useUserReview = (productId, userId) => {
     queryFn: async () => {
       if (!productId || !userId) return null;
       
+      const supabase = getSupabaseClient();
+      if (!supabase) return null;
+
       const { data, error } = await supabase
         .from("reviews")
         .select("*")
@@ -169,6 +183,9 @@ export const useSubmitReview = () => {
 
   return useMutation({
     mutationFn: async ({ productId, userId, rating, comment, userName }) => {
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error('Supabase not initialized');
+
       const { data, error } = await supabase
         .from("reviews")
         .insert({
@@ -202,6 +219,9 @@ export const useUpdateReview = () => {
 
   return useMutation({
     mutationFn: async ({ reviewId, rating, comment }) => {
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error('Supabase not initialized');
+
       const { data, error } = await supabase
         .from("reviews")
         .update({ rating, comment })
@@ -229,6 +249,9 @@ export const useDeleteReview = () => {
 
   return useMutation({
     mutationFn: async ({ reviewId, productId }) => {
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error('Supabase not initialized');
+
       const { error } = await supabase
         .from("reviews")
         .delete()

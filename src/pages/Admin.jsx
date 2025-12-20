@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -43,6 +43,12 @@ const Admin = () => {
   }, []);
   const checkAuth = async () => {
     // Wait for session to be available and use getSession (more reliable for client JWT)
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      navigate('/admin/login');
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
       navigate("/admin/login");
@@ -54,12 +60,12 @@ const Admin = () => {
     // Attempt to read user_roles with a small retry to avoid transient 500s during policy updates
     const tryGetRole = async (attempt = 1) => {
       try {
-        const { data: roles, error } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .eq("role", "admin")
-          .single();
+          const { data: roles, error } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", session.user.id)
+            .eq("role", "admin")
+            .single();
 
         if (error) throw error;
 
@@ -101,6 +107,9 @@ const Admin = () => {
       setOrders([]);
     }
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
+
       const offset = loadMore ? orders.length : 0;
       const { data, error } = await supabase
         .from("orders")
@@ -140,6 +149,9 @@ const Admin = () => {
     setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status } : o)));
 
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error("Supabase not initialized");
+
       const { error } = await supabase
         .from("orders")
         .update({ status })
@@ -157,7 +169,8 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    const supabase = getSupabaseClient();
+    if (supabase) await supabase.auth.signOut();
     navigate("/admin/login");
   };
 

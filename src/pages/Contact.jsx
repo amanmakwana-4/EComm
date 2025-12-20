@@ -9,7 +9,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -69,6 +69,12 @@ const Contact = () => {
       };
 
       // Call Supabase Edge Function `send-contact-message`
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        toast.error("Unable to send message (client not initialized)");
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("send-contact-message", { body: payload });
 
       if (error) {

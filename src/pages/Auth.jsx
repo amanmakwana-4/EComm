@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -37,6 +37,9 @@ const Auth = () => {
 
   useEffect(() => {
     // Check if user is already logged in
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate("/");
@@ -66,6 +69,9 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error('Supabase not initialized');
+
       const { error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
@@ -112,6 +118,9 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) throw new Error('Supabase not initialized');
+
       const { error } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupData.password,

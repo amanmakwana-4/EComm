@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Star } from "lucide-react";
 
@@ -39,6 +39,9 @@ const MyOrders = () => {
       limit: pageSize,
     };
 
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
     const { data, error } = await supabase.functions.invoke("find-orders", { body: payload });
     if (error) throw error;
 
@@ -55,6 +58,9 @@ const MyOrders = () => {
       if (userId) {
         const rangeStart = start;
         const rangeEnd = start + pageSize - 1;
+
+        const supabase = getSupabaseClient();
+        if (!supabase) return;
 
         const { data, error } = await supabase
           .from("orders")

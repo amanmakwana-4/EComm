@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import productImage from "@/assets/productImage.jpeg";
@@ -35,11 +35,13 @@ const Product = () => {
   const { data: product } = useQuery({
     queryKey: ["product"],
     queryFn: async () => {
+      const supabase = getSupabaseClient();
+      if (!supabase) return null;
       const { data, error } = await supabase
         .from("products")
         .select("*")
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -63,12 +65,14 @@ const Product = () => {
     queryKey: ["product-variants", product?.id],
     enabled: Boolean(product) && useDbVariants,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("product_variants")
-        .select("size,price")
-        .eq("product_id", product.id);
-      if (error) throw error;
-      return data;
+        const supabase = getSupabaseClient();
+        if (!supabase) return [];
+        const { data, error } = await supabase
+          .from("product_variants")
+          .select("size,price")
+          .eq("product_id", product.id);
+        if (error) throw error;
+        return data;
     },
   });
 

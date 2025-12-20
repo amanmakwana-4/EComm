@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -16,6 +16,9 @@ const AdminLogin = () => {
     e.preventDefault();
     // Retry transient errors to avoid brief failure flashes
     const attemptSignIn = async (attempt = 1) => {
+      const supabase = getSupabaseClient();
+      if (!supabase) return { message: 'Supabase not initialized' };
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (!error) return null;
 

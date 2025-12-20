@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Star, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCanReview, useUserReview, useSubmitReview, useUpdateReview, useDeleteReview } from "@/hooks/useReviews";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -63,6 +63,8 @@ const ReviewForm = memo(function ReviewForm({ productId }) {
   useEffect(() => {
     const fetchUserName = async () => {
       if (!user?.id) return;
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
 
       // Try to get name from orders first
       const { data: orderData } = await supabase

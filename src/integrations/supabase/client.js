@@ -1,25 +1,31 @@
+import { createClient } from "@supabase/supabase-js";
 
-import { createClient } from '@supabase/supabase-js';
+let supabase;
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+export function getSupabaseClient() {
+  if (supabase) return supabase;
 
-if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-  // Do not throw during build — warn so deployments with missing envs are obvious.
-  console.warn('VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY is not set. Supabase client will be created with undefined values.');
-}
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    // Only reference localStorage when running in the browser
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
-    persistSession: true,
-    autoRefreshToken: true,
+  if (!url || !key) {
+    console.error("❌ Supabase env vars missing");
+    return null; // <-- IMPORTANT for dev
   }
-});
 
-// Expose client to window in dev for quick debugging from the browser console.
-if (import.meta.env.DEV && typeof window !== 'undefined') {
-  window.__supabase = supabase;
-  window.supabase = supabase; // convenience for interactive debugging
+  if (typeof window === "undefined") return null;
+
+  supabase = createClient(url, key, {
+    auth: {
+      storage: window.localStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
+
+  if (import.meta.env.DEV) {
+    window.supabase = supabase;
+  }
+
+  return supabase;
 }
