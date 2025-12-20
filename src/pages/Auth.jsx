@@ -96,6 +96,47 @@ const Auth = () => {
     }
   };
 
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState("");
+
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    const email = forgotEmail.trim();
+    if (!email) {
+      setForgotMessage("Please enter your email");
+      return;
+    }
+    setForgotLoading(true);
+    setForgotMessage("");
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL.replace(/\/+$/,'')}/auth/v1/recover`;
+      const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: key,
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.warn("recover response not ok", res.status, text);
+        setForgotMessage("Failed to send reset email. Try again later.");
+      } else {
+        setForgotMessage("If the email exists, a password reset link was sent.");
+      }
+    } catch (err) {
+      console.error("forgot password error", err);
+      setForgotMessage("Unable to send reset email right now");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
     
@@ -212,6 +253,39 @@ const Auth = () => {
                   {loading ? "Logging in..." : "Login"}
                 </Button>
               </form>
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowForgot((s) => !s)}
+                  className="text-sm text-[hsl(var(--royal-gold))] hover:underline"
+                >
+                  {showForgot ? 'Hide password reset' : 'Forgot password?'}
+                </button>
+              </div>
+
+              {showForgot && (
+                <form onSubmit={handleForgotSubmit} className="mt-4 space-y-3">
+                  <div>
+                    <Label htmlFor="forgot-email">Email</Label>
+                    <Input
+                      id="forgot-email"
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  {forgotMessage && <p className="text-sm text-muted-foreground">{forgotMessage}</p>}
+                  <div className="flex gap-2">
+                    <Button type="submit" className="w-full" disabled={forgotLoading}>
+                      {forgotLoading ? 'Sending...' : 'Send reset email'}
+                    </Button>
+                    <Button type="button" variant="ghost" onClick={() => { setShowForgot(false); setForgotMessage(''); }}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              )}
             </TabsContent>
             
             <TabsContent value="signup">
