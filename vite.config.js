@@ -5,46 +5,23 @@ import { resolve } from "path";
 
 const normalizeId = (id) => (id ? id.split("\\").join("/") : id);
 
-const iconLibraries = [
-  "node_modules/lucide-react",
-  "node_modules/react-icons",
-  "node_modules/@radix-ui/react-icons",
-];
-
-const uiLibraries = [
-  "node_modules/clsx",
-  "node_modules/tailwind-merge",
-  "node_modules/class-variance-authority",
-  "node_modules/sonner",
-  "node_modules/@radix-ui",
-];
-
 const manualChunks = (id) => {
   const normalizedId = normalizeId(id);
+  if (!normalizedId) return;
 
-  if (!normalizedId) {
-    return;
-  }
-
-  if (normalizedId.includes("node_modules/@supabase")) {
-    return "supabase";
-  }
-
-  if (iconLibraries.some((pattern) => normalizedId.includes(pattern))) {
-    return "icons";
-  }
-
-  if (uiLibraries.some((pattern) => normalizedId.includes(pattern)) || normalizedId.includes("/src/components/ui")) {
+  if (normalizedId.includes("node_modules/@supabase")) return "supabase";
+  if (normalizedId.includes("lucide-react")) return "icons";
+  if (
+    normalizedId.includes("clsx") ||
+    normalizedId.includes("tailwind-merge") ||
+    normalizedId.includes("class-variance-authority") ||
+    normalizedId.includes("@radix-ui") ||
+    normalizedId.includes("sonner")
+  ) {
     return "ui";
   }
-
-  if (normalizedId.includes("/src/pages/Admin")) {
-    return "admin";
-  }
-
-  if (normalizedId.includes("node_modules")) {
-    return "vendor";
-  }
+  if (normalizedId.includes("/src/pages/Admin")) return "admin";
+  if (normalizedId.includes("node_modules")) return "vendor";
 };
 
 export default defineConfig({
@@ -66,18 +43,11 @@ export default defineConfig({
         chunkFileNames: "assets/js/[name]-[hash].js",
         entryFileNames: "assets/js/[name]-[hash].js",
         assetFileNames: ({ name }) => {
-          if (!name) {
-            return "assets/[name]-[hash][extname]";
-          }
-
-          if (/(png|jpe?g|svg|gif|webp)$/i.test(name)) {
+          if (!name) return "assets/[name]-[hash][extname]";
+          if (/(png|jpe?g|svg|gif|webp)$/i.test(name))
             return "assets/images/[name]-[hash][extname]";
-          }
-
-          if (/(woff2?|eot|ttf|otf)$/i.test(name)) {
+          if (/(woff2?|eot|ttf|otf)$/i.test(name))
             return "assets/fonts/[name]-[hash][extname]";
-          }
-
           return "assets/[name]-[hash][extname]";
         },
       },
