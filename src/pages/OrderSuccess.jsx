@@ -53,7 +53,7 @@ const OrderSuccess = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="grow container mx-auto px-4 py-12 flex items-center justify-center">
+      <main className="flex-grow container mx-auto px-4 py-12 flex items-center justify-center">
         <Card className="p-12 text-center max-w-2xl">
           <CheckCircle className="w-20 h-20 text-[hsl(var(--royal-gold))] mx-auto mb-6" />
           

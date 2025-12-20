@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,8 @@ const checkoutSchema = z.object({
   pincode: z.string().trim().regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
 });
 
+const DELIVERY_CHARGE = 100;
+
 const Checkout = () => {
   const { items, total, clearCart } = useCart();
   const { user } = useAuth();
@@ -36,6 +39,13 @@ const Checkout = () => {
   });
   const [errors, setErrors] = useState({});
   const [freeDeliveryFor50Plus, setFreeDeliveryFor50Plus] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMessage, setCouponMessage] = useState("");
+
+  const getSizeNumber = (size) => parseInt((size || "").toString().replace(/[^0-9]/g, "") || "0", 10);
+  const hasEligibleForFree = items.some((item) => getSizeNumber(item.size) >= 50);
 
   useEffect(() => {
     // Pre-fill form with user data if logged in
@@ -86,11 +96,55 @@ const Checkout = () => {
     loadUserData();
   }, [user]);
 
+  useEffect(() => {
+    if (!hasEligibleForFree && freeDeliveryFor50Plus) {
+      setFreeDeliveryFor50Plus(false);
+    }
+  }, [hasEligibleForFree, freeDeliveryFor50Plus]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleCouponChange = (value) => {
+    setCouponCode(value);
+    if (couponApplied) {
+      setCouponApplied(false);
+    }
+    if (couponMessage) {
+      setCouponMessage("");
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    const trimmedCode = couponCode.trim();
+    if (!trimmedCode) {
+      setCouponMessage("Enter a promo code to apply");
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponMessage("");
+    try {
+      const { data, error } = await supabase.functions.invoke("validate-promo", { body: { code: trimmedCode } });
+      if (error) throw error;
+      if (data?.valid) {
+        setCouponApplied(true);
+        setCouponMessage("Promo applied — delivery charge waived.");
+      } else {
+        setCouponApplied(false);
+        setCouponMessage("Invalid promo code");
+      }
+    } catch (error) {
+      console.error("Coupon validation failed:", error);
+      setCouponApplied(false);
+      setCouponMessage("Unable to apply promo code right now");
+    } finally {
+      setCouponLoading(false);
     }
   };
 
@@ -125,13 +179,8 @@ const Checkout = () => {
     try {
       // Compute local shipping/total for display and emails (server will compute canonical pricing)
       const subtotal = total;
-      const DELIVERY_CHARGE = 100;
-      const hasEligibleForFree = items.some((it) => {
-        const sizeLabel = (it.size || "").toString();
-        const sizeNum = parseInt(sizeLabel.replace(/[^0-9]/g, "") || "0", 10);
-        return sizeNum >= 50;
-      });
-      const shippingTotal = hasEligibleForFree ? 0 : DELIVERY_CHARGE;
+      const eligibleByWeight = freeDeliveryFor50Plus && hasEligibleForFree;
+      const shippingTotal = (eligibleByWeight || couponApplied) ? 0 : DELIVERY_CHARGE;
       const finalTotal = subtotal + shippingTotal;
 
       // Create order server-side via Edge Function to avoid trusting client-side prices
@@ -146,6 +195,8 @@ const Checkout = () => {
         payment_method: paymentMethod,
         user_id: user?.id || null,
         freeDeliveryFor50Plus,
+        coupon_code: couponApplied ? couponCode.trim() : null,
+        coupon_applied: couponApplied,
       };
 
       const { data, error } = await supabase.functions.invoke("create-order", { body: payload });
@@ -171,20 +222,17 @@ const Checkout = () => {
     }
   };
 
-        const DELIVERY_CHARGE = 100;
-        const hasEligibleForFree = items.some((it) => {
-          const sizeLabel = (it.size || "").toString();
-          const sizeNum = parseInt(sizeLabel.replace(/[^0-9]/g, "") || "0", 10);
-          return sizeNum >= 50;
-        });
-
-        // If any item size >= 50g, delivery is free. Otherwise apply single DELIVERY_CHARGE per order.
         // Render UI
         return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
 
         <main className="grow container mx-auto px-4 py-12">
+        <Helmet>
+          <title>Checkout — Royal Pure Spices Pvt Ltd</title>
+          <meta name="description" content="Complete your purchase for Natural Premium Hing. Secure checkout with Cash on Delivery." />
+          <link rel="canonical" href="https://e-comm-seven-dun.vercel.app/checkout" />
+        </Helmet>
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
         
         <form onSubmit={handleSubmit}>
@@ -317,18 +365,52 @@ const Checkout = () => {
                       />
                       <span className="text-sm">Apply free delivery for items 50g or more</span>
                     </label>
+                    {!hasEligibleForFree && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Add at least one 50g+ variant to unlock this option.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Promo codes occasionally waive delivery: apply one below to see the discount.
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Promo code"
+                        value={couponCode}
+                        onChange={(e) => handleCouponChange(e.target.value)}
+                        disabled={couponApplied}
+                        maxLength={32}
+                      />
+                      <Button
+                        size="sm"
+                        className="bg-[hsl(var(--royal-gold))] hover:bg-[hsl(var(--royal-gold-dark))] text-foreground"
+                        onClick={handleApplyCoupon}
+                        disabled={couponLoading || couponApplied || !couponCode.trim()}
+                      >
+                        {couponLoading ? "Applying..." : couponApplied ? "Applied" : "Apply"}
+                      </Button>
+                    </div>
+                    {couponMessage && (
+                      <p className="text-xs text-muted-foreground">{couponMessage}</p>
+                    )}
                   </div>
 
                   <div className="border-t pt-4">
                     {(() => {
                       const subtotal = total;
-                      const shippingTotal = items.reduce((sum, it) => {
-                        const qty = it.quantity || 0;
-                        const sizeLabel = (it.size || "").toString();
-                        const sizeNum = parseInt(sizeLabel.replace(/[^0-9]/g, "") || "0", 10);
-                        const eligibleForFree = freeDeliveryFor50Plus && sizeNum >= 50;
-                        return sum + ((eligibleForFree ? 0 : (it.deliveryCharge || 0)) * qty);
-                      }, 0);
+                      const couponWaivesDelivery = couponApplied;
+                      const shippingTotal = couponWaivesDelivery
+                        ? 0
+                        : items.reduce((sum, it) => {
+                            const qty = it.quantity || 0;
+                            const sizeValue = getSizeNumber(it.size);
+                            const eligibleForFree = freeDeliveryFor50Plus && sizeValue >= 50;
+                            const perItemCharge = eligibleForFree ? 0 : (it.deliveryCharge || DELIVERY_CHARGE);
+                            return sum + perItemCharge * qty;
+                          }, 0);
 
                       const finalTotal = subtotal + shippingTotal;
 
@@ -340,8 +422,13 @@ const Checkout = () => {
                           </div>
                           <div className="flex justify-between mb-4">
                             <span>Delivery</span>
-                            <span className="text-[hsl(var(--royal-gold))]">{shippingTotal === 0 ? "FREE" : `₹${shippingTotal.toFixed(2)}`}</span>
+                            <span className="text-[hsl(var(--royal-gold))]">
+                              {shippingTotal === 0 ? "FREE" : `₹${shippingTotal.toFixed(2)}`}
+                            </span>
                           </div>
+                          {couponApplied && (
+                            <p className="text-xs text-[hsl(var(--royal-gold))] mb-2">Promo code applied &ndash; delivery waived.</p>
+                          )}
                           <div className="flex justify-between text-xl font-bold">
                             <span>Total</span>
                             <span className="text-[hsl(var(--royal-gold))]">₹{finalTotal.toFixed(2)}</span>

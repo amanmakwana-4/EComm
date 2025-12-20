@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Helmet } from "react-helmet-async";
 import { Award, Heart, Leaf, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -6,6 +7,11 @@ import Footer from "@/components/Footer";
 const About = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>About Royal Pure Spices Pvt Ltd | Authentic Hing Manufacturers</title>
+        <meta name="description" content="Learn about Royal Pure Spices, our story, values, and commitment to premium, authentic Hing." />
+        <link rel="canonical" href="https://e-comm-seven-dun.vercel.app/about" />
+      </Helmet>
       <Navbar />
       
       <main className="grow">

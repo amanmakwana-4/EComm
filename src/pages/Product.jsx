@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Minus, Plus, ShoppingCart, Star } from "lucide-react";
@@ -111,6 +112,11 @@ const Product = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Buy {product?.name} | Royal Pure Spices Pvt Ltd</title>
+        <meta name="description" content={product?.short_description || "Premium Hing for authentic flavor."} />
+        <link rel="canonical" href="https://e-comm-seven-dun.vercel.app/product" />
+      </Helmet>
       <Navbar />
       
       <main className="grow container mx-auto px-4 py-12">

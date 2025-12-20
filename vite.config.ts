@@ -22,7 +22,6 @@ export default defineConfig({
     cssMinify: true,
     // Chunk splitting configuration
     rollupOptions: {
-      external: ["zod"],
       output: {
         // Manual chunk splitting for optimal caching
         manualChunks: (id) => {

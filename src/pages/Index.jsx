@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useState, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -83,6 +84,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Royal Pure Spices Pvt Ltd | Natural Premium Hing</title>
+        <meta name="description" content="Experience pure asafoetida with authentic aroma and unmatched quality - Natural Premium Hing by Royal Pure Spices." />
+        <link rel="canonical" href="https://e-comm-seven-dun.vercel.app/" />
+      </Helmet>
       <Navbar />
       
       {/* Hero Section */}

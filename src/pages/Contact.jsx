@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -88,10 +89,15 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Contact Royal Pure Spices Pvt Ltd | Customer Support</title>
+        <meta name="description" content="Get in touch with Royal Pure Spices for orders, support, and inquiries. We're here to help." />
+        <link rel="canonical" href="https://e-comm-seven-dun.vercel.app/contact" />
+      </Helmet>
       <Navbar />
 
-      <main className="grow">
-        <section className="bg-linear-to-r from-primary to-primary/80 text-primary-foreground py-20">
+      <main className="flex-grow">
+        <section className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
             <p className="text-xl max-w-2xl mx-auto">
@@ -183,7 +189,7 @@ const Contact = () => {
               <div className="space-y-6">
                 <Card className="p-6">
                   <div className="flex items-start gap-4">
-                    <MapPin className="w-6 h-6 text-[hsl(var(--royal-gold))] shrink mt-1" />
+                    <MapPin className="w-6 h-6 text-[hsl(var(--royal-gold))] flex-shrink-0 mt-1" />
                     <div>
                       <h3 className="font-semibold mb-1">Address</h3>
                       <p className="text-muted-foreground">
@@ -197,7 +203,7 @@ const Contact = () => {
 
                 <Card className="p-6">
                   <div className="flex items-start gap-4">
-                    <Phone className="w-6 h-6 text-[hsl(var(--royal-gold))] shrink-0 mt-1" />
+                    <Phone className="w-6 h-6 text-[hsl(var(--royal-gold))] flex-shrink-0 mt-1" />
                     <div>
                       <h3 className="font-semibold mb-1">Phone</h3>
                       <p className="text-muted-foreground">+91 9203605553</p>
@@ -207,7 +213,7 @@ const Contact = () => {
 
                 <Card className="p-6">
                   <div className="flex items-start gap-4">
-                    <Mail className="w-6 h-6 text-[hsl(var(--royal-gold))] shrink-0 mt-1" />
+                    <Mail className="w-6 h-6 text-[hsl(var(--royal-gold))] flex-shrink-0 mt-1" />
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
                       <p className="text-muted-foreground">royalpurespicespvtltd.com</p>

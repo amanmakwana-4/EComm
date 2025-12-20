@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +16,12 @@ const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [guestMode, setGuestMode] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestPincode, setGuestPincode] = useState("");
+  const [guestSearchLoading, setGuestSearchLoading] = useState(false);
+  const [guestSearchError, setGuestSearchError] = useState("");
+  const [guestSearchFilters, setGuestSearchFilters] = useState(null);
   const [offset, setOffset] = useState(0);
   const [pageSize] = useState(5);
   const [hasMore, setHasMore] = useState(false);
@@ -23,39 +31,31 @@ const MyOrders = () => {
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
-    // Use getSession and wait briefly for the session to restore to avoid flashes on page refresh
-    const { data: { session } } = await supabase.auth.getSession();
+  const fetchGuestOrders = async ({ email, pincode, start = 0, append = false }) => {
+    const payload = {
+      email,
+      pincode,
+      start,
+      limit: pageSize,
+    };
 
-    if (!session) {
-      // Wait a short time for auth to restore (e.g., on refresh session may appear shortly)
-      await new Promise((res) => setTimeout(res, 600));
-      const { data: { session: session2 } } = await supabase.auth.getSession();
-      if (!session2) {
-        // No session after waiting — navigate away quietly
-        navigate("/auth");
-        return;
-      }
-      setUser(session2.user);
-      setOffset(0);
-      setHasMore(false);
-      fetchOrders(session2.user.id, session2.user.email, 0, false);
-      return;
-    }
+    const { data, error } = await supabase.functions.invoke("find-orders", { body: payload });
+    if (error) throw error;
 
-    setUser(session.user);
-    // reset pagination and load first page
-    setOffset(0);
-    setHasMore(false);
-    fetchOrders(session.user.id, session.user.email, 0, false);
+    const fetched = (data && data.orders) || [];
+    if (append) setOrders((prev) => [...prev, ...fetched]);
+    else setOrders(fetched);
+
+    setHasMore(Array.isArray(fetched) && fetched.length === pageSize);
+    setOffset(start + fetched.length);
   };
-  const fetchOrders = async (userId, userEmail, start = 0, append = false) => {
-    try {
-      const rangeStart = start;
-      const rangeEnd = start + pageSize - 1;
 
-      // First try by user_id with pagination
+  const fetchOrders = async ({ userId, userEmail, start = 0, append = false, filters = {} }) => {
+    try {
       if (userId) {
+        const rangeStart = start;
+        const rangeEnd = start + pageSize - 1;
+
         const { data, error } = await supabase
           .from("orders")
           .select("*")
@@ -73,37 +73,26 @@ const MyOrders = () => {
         return;
       }
 
-      // Fallback to email lookup with pagination
       if (userEmail) {
-        const { data: dataByEmail, error: emailError } = await supabase
-          .from("orders")
-          .select("*")
-          .eq("email", userEmail)
-          .order("created_at", { ascending: false })
-          .range(rangeStart, rangeEnd);
-
-        if (emailError) throw emailError;
-
-        if (append) setOrders((prev) => [...prev, ...(dataByEmail || [])]);
-        else setOrders(dataByEmail || []);
-
-        setHasMore(Array.isArray(dataByEmail) && dataByEmail.length === pageSize);
-        setOffset(start + (dataByEmail ? dataByEmail.length : 0));
+        await fetchGuestOrders({
+          email: userEmail,
+          pincode: filters.pincode,
+          start,
+          append,
+        });
         return;
       }
 
-      // If no identifiers, return empty
       setOrders([]);
       setHasMore(false);
     } catch (error) {
       console.error("Error fetching orders:", error);
-      // Retry once for transient server errors before showing a toast
       const msg = (error?.message || "").toString().toLowerCase();
       const isTransient = msg.includes("500") || msg.includes("timeout") || msg.includes("network");
       if (isTransient) {
         try {
           await new Promise((res) => setTimeout(res, 300));
-          await fetchOrders(userId, userEmail, start, append);
+          await fetchOrders({ userId, userEmail, start, append, filters });
           return;
         } catch (e) {
           console.error("Retry failed:", e);
@@ -116,11 +105,83 @@ const MyOrders = () => {
     }
   };
 
+  const handleGuestSearch = async (e) => {
+    e.preventDefault();
+    const trimmedEmail = guestEmail.trim();
+    const trimmedPincode = guestPincode.trim();
+
+    if (!trimmedEmail) {
+      setGuestSearchError("Email is required");
+      return;
+    }
+
+    setGuestSearchError("");
+    setGuestSearchFilters({ email: trimmedEmail, pincode: trimmedPincode || undefined });
+    setOrders([]);
+    setOffset(0);
+    setHasMore(false);
+    setGuestSearchLoading(true);
+
+    try {
+      await fetchOrders({
+        userEmail: trimmedEmail,
+        start: 0,
+        append: false,
+        filters: { pincode: trimmedPincode || undefined },
+      });
+    } finally {
+      setGuestSearchLoading(false);
+    }
+  };
+
   const loadMore = async () => {
-    if (!user) return;
+    if (!hasMore) return;
+    if (!user && !guestSearchFilters?.email) return;
+
     setLoadingMore(true);
-    await fetchOrders(user.id, user.email, offset, true);
+
+    if (user) {
+      await fetchOrders({ userId: user.id, userEmail: user.email, start: offset, append: true });
+    } else if (guestSearchFilters?.email) {
+      await fetchOrders({
+        userEmail: guestSearchFilters.email,
+        start: offset,
+        append: true,
+        filters: { pincode: guestSearchFilters.pincode },
+      });
+    }
+
     setLoadingMore(false);
+  };
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      await new Promise((res) => setTimeout(res, 600));
+      const { data: { session: session2 } } = await supabase.auth.getSession();
+      if (!session2) {
+        setGuestMode(true);
+        setUser(null);
+        setOrders([]);
+        setHasMore(false);
+        setOffset(0);
+        setLoading(false);
+        return;
+      }
+      setGuestMode(false);
+      setUser(session2.user);
+      setOffset(0);
+      setHasMore(false);
+      fetchOrders({ userId: session2.user.id, userEmail: session2.user.email, start: 0, append: false });
+      return;
+    }
+
+    setGuestMode(false);
+    setUser(session.user);
+    setOffset(0);
+    setHasMore(false);
+    fetchOrders({ userId: session.user.id, userEmail: session.user.email, start: 0, append: false });
   };
 
   const getStatusColor = (status) => {
@@ -159,9 +220,67 @@ const MyOrders = () => {
       <main className="grow container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-8">My Orders</h1>
 
+        {guestMode && (
+          <Card className="p-6 mb-6 space-y-4">
+            <h2 className="text-xl font-semibold">Track guest orders</h2>
+            <p className="text-sm text-muted-foreground">
+              You can place orders without signing in and still view them. Enter the email you used while placing the order and optionally the pincode to load your history.
+            </p>
+            <form onSubmit={handleGuestSearch} className="grid gap-4 md:grid-cols-3">
+              <div className="md:col-span-2 space-y-1">
+                <Label htmlFor="guest-email">Email</Label>
+                <Input
+                  id="guest-email"
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  required
+                />
+                {guestSearchError && (
+                  <p className="text-sm text-destructive">{guestSearchError}</p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="guest-pincode">Pincode (optional)</Label>
+                <Input
+                  id="guest-pincode"
+                  value={guestPincode}
+                  onChange={(e) => setGuestPincode(e.target.value)}
+                  placeholder="6-digit pincode"
+                  maxLength={6}
+                />
+              </div>
+
+              <div className="md:col-span-3 flex flex-col gap-2 md:flex-row md:items-center">
+                <Button
+                  type="submit"
+                  disabled={guestSearchLoading}
+                  className="w-full bg-[hsl(var(--royal-gold))] hover:bg-[hsl(var(--royal-gold-dark))] text-foreground"
+                >
+                  {guestSearchLoading ? "Searching..." : "Find Orders"}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate("/auth")}
+                >
+                  Log in to view full history
+                </Button>
+              </div>
+            </form>
+          </Card>
+        )}
+
         {orders.length === 0 ? (
           <Card className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">You haven't placed any orders yet</p>
+            <p className="text-muted-foreground mb-4">
+              {guestMode
+                ? guestSearchFilters
+                  ? "We couldn't find any orders that match that email/pincode combination."
+                  : "Search above with your email to see orders placed as a guest."
+                : "You haven't placed any orders yet"}
+            </p>
             <button
               onClick={() => navigate("/product")}
               className="text-[hsl(var(--royal-gold))] hover:underline"
@@ -202,8 +321,6 @@ const MyOrders = () => {
                       </div>
                     );
                   })}
-                  
-                  {/* Subtotal and delivery breakdown */}
                   <div className="border-t mt-2 pt-2 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal:</span>
@@ -258,7 +375,6 @@ const MyOrders = () => {
                     </div>
                   </div>
 
-                  {/* Write Review button for delivered orders */}
                   {order.status?.toLowerCase() === "delivered" && (
                     <div className="mt-4 pt-4 border-t">
                       <Button
@@ -274,7 +390,6 @@ const MyOrders = () => {
               </Card>
             ))}
 
-            {/* Load more button */}
             {hasMore && (
               <div className="text-center">
                 <button
