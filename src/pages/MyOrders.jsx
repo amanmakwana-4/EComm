@@ -161,6 +161,9 @@ const MyOrders = () => {
   };
 
   const checkAuth = async () => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session) {
