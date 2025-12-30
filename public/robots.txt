@@ -13,4 +13,4 @@ Disallow: /my-orders
 Disallow: /order-success
 
 # Sitemap (Vercel domain for now)
-Sitemap: https://e-comm-seven-dun.vercel.app/sitemap.xml
+Sitemap: https://e-comm-lilac-alpha.vercel.app/
